@@ -1,3 +1,4 @@
+import json
 import logging
 
 import numpy as np
@@ -7,7 +8,7 @@ from starkware.starknet.public.abi import get_selector_from_name
 
 from src.constants import GATEWAY_CLIENT, NETWORK
 from src.spreadsheet import DriveClient
-from src.utils import get_account, parse_int
+from src.utils import get_account, get_tx_url, parse_int
 
 drive_client = DriveClient()
 logger = logging.getLogger(__name__)
@@ -47,11 +48,13 @@ async def call_job():
         for account in accounts.to_dict("records")
     ]
 
-    logger.info(f"⏳ Waiting for txs")
+    logger.info(
+        f"⏳ Waiting for txs:\n{json.dumps([get_tx_url(tx.transaction_hash) for tx in txs], indent=2)}"
+    )
     receipts = [await GATEWAY_CLIENT.wait_for_tx(tx.transaction_hash) for tx in txs]
     pd.DataFrame(
         {
-            "hash": [hex(tx.transaction_hash) for tx in txs],
+            "hash": [get_tx_url(tx.transaction_hash) for tx in txs],
             "from": accounts.address,
             "status": [r[1].name for r in receipts],
         }
