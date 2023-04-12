@@ -6,6 +6,8 @@ import pandas as pd
 from inflection import underscore
 from oauth2client.service_account import ServiceAccountCredentials
 
+from src.constants import NETWORK
+
 
 class DriveClient:
     def __init__(self, client_secret="client_secret.json"):
@@ -38,11 +40,15 @@ class DriveClient:
         return self._headers
 
     def get_sheet_as_dataframe(self, sheet_title: str) -> pd.DataFrame:
-        return pd.DataFrame(self.worksheets[sheet_title].get_all_records()).rename(
-            columns=underscore
+        return (
+            pd.DataFrame(self.worksheets[sheet_title].get_all_records())
+            .rename(columns=underscore)
+            .loc[lambda df: df.network == NETWORK]
+            .drop("network", axis=1)
         )
 
     def append_series_to_sheet(self, sheet_title, data):
+        data["network"] = NETWORK
         self.worksheets[sheet_title].append_row(
             data.reindex(self.headers[sheet_title]).fillna("").to_list(),
             insert_data_option="INSERT_ROWS",

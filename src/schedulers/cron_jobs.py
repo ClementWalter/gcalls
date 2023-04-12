@@ -1,13 +1,17 @@
+import logging
+
 import numpy as np
 import pandas as pd
 from starknet_py.net.client_models import Call
 from starkware.starknet.public.abi import get_selector_from_name
 
-from src.constants import GATEWAY_CLIENT
+from src.constants import GATEWAY_CLIENT, NETWORK
 from src.spreadsheet import DriveClient
 from src.utils import get_account, parse_int
 
 drive_client = DriveClient()
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 async def call_job():
@@ -32,11 +36,18 @@ async def call_job():
         )
         .tolist()
     )
+    if not calls:
+        logger.info(f"ℹ️  No calls for network {NETWORK}")
+        return
+
+    logger.info(f"ℹ️  {len(calls)} calls found for {NETWORK}")
+    logger.info(f"ℹ️  Sending tx for {len(accounts)} accounts")
     txs = [
         await get_account(**account).execute(calls, max_fee=int(1e16))
         for account in accounts.to_dict("records")
     ]
 
+    logger.info(f"⏳ Waiting for txs")
     receipts = [await GATEWAY_CLIENT.wait_for_tx(tx.transaction_hash) for tx in txs]
     pd.DataFrame(
         {

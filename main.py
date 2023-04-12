@@ -18,7 +18,7 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s %(module)s - %(funcName)s: %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
 )
-logging.getLogger("apscheduler").setLevel(logging.INFO)
+logging.getLogger("apscheduler").setLevel(logging.ERROR)
 
 # Cron info
 HOUR = int(os.getenv("HOUR", 0))
