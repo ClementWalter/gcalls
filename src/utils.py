@@ -1,10 +1,13 @@
 import asyncio
+import random
 from typing import Union
 
 from starknet_py.net.account.account import Account
 from starknet_py.net.signer.stark_curve_signer import KeyPair
 
 from src.constants import CHAIN_ID, GATEWAY_CLIENT, STARKSCAN_URL
+
+placeholders = {"$rand": lambda: random.randint(0, 2**128 - 1)}
 
 
 def int_to_uint256(value):
@@ -19,6 +22,8 @@ def parse_int(value: Union[int, str]) -> int:
         return value
     if value == "":
         return 0
+    if placeholders.get(value):
+        return placeholders[value]()
     base = 16 if isinstance(value, str) and value[:2] == "0x" else 10
     return int(value, base)
 
