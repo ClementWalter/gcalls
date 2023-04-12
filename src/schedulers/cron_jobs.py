@@ -4,11 +4,9 @@ from starknet_py.net.client_models import Call
 from starkware.starknet.public.abi import get_selector_from_name
 
 from src.constants import GATEWAY_CLIENT
-from src.emails import EmailService
 from src.spreadsheet import DriveClient
 from src.utils import get_account, parse_int
 
-email_service = EmailService()
 drive_client = DriveClient()
 
 
