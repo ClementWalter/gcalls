@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+from src.constants import NETWORK
 from src.schedulers.cron_jobs import call_job
 from src.utils import sync
 
@@ -27,7 +28,7 @@ JITTER = int(os.getenv("JITTER", 0))
 
 
 if __name__ == "__main__":
-    logging.info("Gcall started")
+    logging.info(f"Gcall started on network {NETWORK}")
     offset = pytz.timezone("Europe/Paris").utcoffset(datetime.now()).total_seconds()
     scheduler = BlockingScheduler()
     scheduler.add_job(
